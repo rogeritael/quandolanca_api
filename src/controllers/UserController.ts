@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Bcrypt from 'bcrypt';
 import { User } from "../models/User";
+import { UserList } from "../models/UserList";
 import jwt from 'jsonwebtoken';
 
 interface UserProps {
@@ -24,7 +25,7 @@ export class UserController
         }
 
         //o usuário já existe no banco?
-        const userExists = await User.findAll({ where: { "email": email }});
+        const userExists = await User.findOne({ where: { "email": email }});
         if(userExists){
             return res.status(422).json({ message: "Este endereço de e-mail já foi cadastrado" });
         }
@@ -32,6 +33,9 @@ export class UserController
         //criptografa a senha
         const salt = await Bcrypt.genSalt(12);
         const hashedPassword = await Bcrypt.hash(password, salt);
+
+        //cria a lista
+        await UserList.create();
 
         //cria o usuário
         const user = await User.create({
@@ -75,8 +79,8 @@ export class UserController
     }
 
     static async getUser(req: Request, res: Response){
-        const userId = req.user.id;
+        const user = await User.findOne({include: UserList, where: { "id": req.user.id } })
 
-        res.status(200).json({ message: "funcionou", userId })
+        res.status(200).json({ user })
     }
 }

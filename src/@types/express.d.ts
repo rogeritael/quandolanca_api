@@ -5,7 +5,4 @@ declare namespace Express
             id: string
         }
     }
-    // export interface Model {
-    //     password: string;
-    // }
 }

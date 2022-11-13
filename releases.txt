@@ -1,0 +1,36 @@
+{
+    "name": "Resident Evil",
+    "category": "games",
+    "image": "imagemqualquer.png",
+	"date": "December 17, 1995 03:24:00"
+},
+{
+    "name": "Silent Hill",
+    "category": "games",
+    "image": "imagemqualquer.png",
+	"date": "December 17, 1995 03:24:00"
+},
+{
+    "name": "Forza Horizon Exodus",
+    "category": "games",
+    "image": "imagemqualquer.png",
+	"date": "December 17, 1995 03:24:00"
+},
+{
+    "name": "You",
+    "category": "series",
+    "image": "imagemqualquer.png",
+	"date": "December 17, 1995 03:24:00"
+},
+{
+    "name": "Pretty Big Liars",
+    "category": "series",
+    "image": "imagemqualquer.png",
+	"date": "December 17, 1995 03:24:00"
+},
+{
+    "name": "Naruto",
+    "category": "animes",
+    "image": "imagemqualquer.png",
+	"date": "December 17, 1995 03:24:00"
+},
