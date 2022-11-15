@@ -18,9 +18,12 @@ app.use(express.json());
 const UserRoutes = require("./routes/UserRoutes");
 const ReleaseRoutes = require("./routes/ReleaseRoutes");
 const UserListRoutes = require("./routes/UserListRoutes");
+const NotificationRoutes = require("./routes/NotificationsRoutes");
+
 app.use("/users", UserRoutes);
 app.use("/releases", ReleaseRoutes);
 app.use("/userlist", UserListRoutes);
+app.use("/usernotifications", NotificationRoutes);
 
 // {force: true}
 db.sync().then(() => {

@@ -3,6 +3,7 @@ import Bcrypt from 'bcrypt';
 import { User } from "../models/User";
 import { UserList } from "../models/UserList";
 import jwt from 'jsonwebtoken';
+import { Notifications } from "../models/Notifications";
 
 interface UserProps {
     name: string,
@@ -79,7 +80,7 @@ export class UserController
     }
 
     static async getUser(req: Request, res: Response){
-        const user = await User.findOne({include: UserList, where: { "id": req.user.id } })
+        const user = await User.findOne({include: [UserList, Notifications], where: { "id": req.user.id } })
 
         res.status(200).json({ user })
     }
