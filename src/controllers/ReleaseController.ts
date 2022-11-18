@@ -6,10 +6,10 @@ import { Release } from "../models/Release";
 export class ReleaseController
 {
     static async create(req: Request, res: Response){
-        const { name, image, date, category } = req.body;
+        const { name, date, category } = req.body;
         
         //verifica se os campos foram preenchidos
-        if(!name || !image! || !date){
+        if(!name || !category || !date){
             return res.status(422).json({ message: "Todos os campos são obrigatórios" });
         }
 
@@ -17,6 +17,12 @@ export class ReleaseController
         const releaseAlreadyExists = await Release.findOne({ where: { "name": name } });
         if(releaseAlreadyExists){
             return res.status(422).json({ message: "Este lançamento já foi cadastrado" });
+        }
+
+        //verifica se chegou alguma imagem
+        let image = ''
+        if(req.file){
+            image = req.file.filename
         }
 
         //cria o lançamento
@@ -66,5 +72,17 @@ export class ReleaseController
 
         // res.status(200).json(nearlyReleases);
         res.status(200).json(recentlyReleased);
+    }
+
+    static async searchReleaseByName(req: Request, res: Response){
+        const { term } = req.params;
+
+        if(!term || term.length === 0){
+            return res.status(422).json({ message: "Não foi possível encontrar o lançamento" });
+        }
+
+        await Release.findAll({ where: { name: { [Op.like]: `%${term}%` } } })
+        .then(response => res.status(200).json(response))
+        .catch(err => res.status(422).json({ message: "Erro ao encontrar lançamento" }));
     }
 }
