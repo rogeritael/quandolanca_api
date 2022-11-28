@@ -9,6 +9,15 @@ export const Notifications = db.define('usernotifications', {
     },
     description: {
         type: DataTypes.STRING
+    },
+    stage: {
+        type: DataTypes.INTEGER
+    },
+    releaseName: {
+        type: DataTypes.STRING
+    },
+    notificaionReadStatus: {
+        type: DataTypes.BOOLEAN
     }
 });
 

@@ -1,65 +1,54 @@
 import { Request, Response } from "express";
 import { Notifications } from "../models/Notifications";
-import { User } from "../models/User";
-import { UserList } from "../models/UserList";
 
 export class NotificationsController
 {
 
-    static async createNotification(req: Request, res: Response){
-        const {type, days, id} = req.body;
-
-        if(!type || !days || !id)
-            return res.status(422).json({ message: "Todos os campos são obrigatórios" })
-
-
-        const release: any = await UserList.findOne({ where: { 'id': id } });
-        if(!release)
-            return res.status(422).json({ message: "Erro ao encontrar lançamento" });
-
-        
-        if(type === 'comingsoon'){
-            let customMessage = `${release.name} está programado para lançar daqui à ${days} dias.`;
-                
-            //verifica se já existe uma notificação igual a esta
-            const notificationAlreadyExists = await Notifications.findOne({ where: { "type": "Em Breve", "description": customMessage } });
-            if(notificationAlreadyExists){
-                return res.status(422).json({message: "Esta notificação já foi criada"});
-            }
-
-            await Notifications.create({
-                type: 'Em Breve', description: customMessage, userId: req.user.id
-            })
-            .then(response => res.status(201).json({ message: "Notificação criada com sucesso" }))
-            .catch(err => res.status(422).json({ message: "Erro ao criar notificação" }));
-
-
-        } else if(type === 'released'){
-            let customMessage = ''
-            if(days === 0){
-                customMessage = `${release.name} acaba de ser lançado`;
-            }else {
-                customMessage = `${release.name} foi lançado à ${days} dias`;
-            }
-
-            //verifica se já existe uma notificação igual a esta
-            const notificationAlreadyExists = await Notifications.findOne({ where: { "type": "Lançou", "description": customMessage } });
-            if(notificationAlreadyExists){
-                return res.status(422).json({message: "Esta notificação já foi criada"});
-            }
-
-            await Notifications.create({
-                type: 'Lançou', description: customMessage, userId: req.user.id
-            })
-            .then(response => res.status(201).json({ message: "Notificação criada com sucesso" }))
-            .catch(err => res.status(422).json({ message: "Erro ao criar notificação" }));
+    static async getNotifications(req: Request, res: Response){
+        try{
+            const notifications = await Notifications.findAll({ 
+                where: { "userId": req.user.id },
+                order: [['createdAt', 'ASC']]
+            });
+            res.status(200).json(notifications);
+        }catch(err){
+            res.status(422).json({ message: "Erro ao recuperar notificações" });
         }
-
     }
 
-    // static async generateNotifications(req: Request, res: Response){
-    //     const user = await User.findOne({ where: { id: req.user.id } });
+    static async generateNotifications(req: Request, res: Response){
+        const { type, stage, description, releaseName } = req.body;
 
-    //     user.
-    // }
+        //verifica se já foi criado uma notificação para este lançamento com o mesmo estágio
+        const isNotificationAlreadyCreated = await Notifications.findOne({ 
+            where: { 
+                "releaseName": releaseName,
+                "stage": stage,
+                "userId": req.user.id
+            }
+        })
+        .catch(err => {
+            res.status(422).json({ message: "Erro ao encontrar notificação" })
+        });
+
+        if(isNotificationAlreadyCreated){
+            return res.status(422).json({ message: "A notificação para este lançamento já foi criada" });
+        }
+
+        await Notifications.create({
+            type, stage, description, releaseName, userId: req.user.id, notificaionReadStatus: false 
+        })
+        .then(response => res.status(201).json({ message: "notificação criada!" }))
+        .catch(err => res.status(422).json({ message: "Erro ao criar notificação" }))
+    }
+
+    static async setNotificationsAsRead(req: Request, res: Response){
+        
+        try{
+            await Notifications.update({ notificaionReadStatus: true }, { where: { notificaionReadStatus: false, 'userId': req.user.id  }});
+            res.status(200).json({ message: "notificações marcadas como lidas" })
+        }catch(err){
+            res.status(422).json({ message: "Erro ao marcar as notificações como lidas" })
+        }
+    }
 }

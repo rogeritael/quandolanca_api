@@ -8,7 +8,7 @@ export const UserList = db.define('userlist', {
         type: DataTypes.STRING
     },
     image: {
-        type: DataTypes.STRING
+        type: DataTypes.TEXT
     },
     date: {
         type: DataTypes.DATE

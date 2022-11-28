@@ -6,7 +6,8 @@ export const Release = db.define('releases', {
         type: DataTypes.STRING
     },
     image: {
-        type: DataTypes.STRING
+        // type: DataTypes.STRING
+        type: DataTypes.TEXT
     },
     category: {
         type: DataTypes.STRING

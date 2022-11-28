@@ -32,15 +32,14 @@ export class UserListController
         }      
 
         //cria a lista
-        await UserList.create({
-            name: release.name, image: release.image, date: release.date, userId: req.user.id
-        })
-        .then(response => {
-            return res.status(201).json({ message: "Lançamento adicionado à sua lista com sucesso" });
-        })
-        .catch(err => {
+        try {
+            await UserList.create({ name: release.name, image: release.image, date: release.date, userId: req.user.id });
+            const updatedList = await UserList.findAll({ where: { "userId": req.user.id } });
+
+            return res.status(201).json({ message: "Lançamento adicionado à sua lista com sucesso", updatedList });
+        }catch(err){
             return res.status(422).json({ message: "Erro ao adicionar lançamento à sua lista" });
-        })
+        }
     }
 
     static async getList(req: Request, res: Response){

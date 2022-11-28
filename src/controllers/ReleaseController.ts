@@ -2,6 +2,7 @@ import { Request, response, Response } from "express";
 import moment from "moment";
 const { Op } = require("sequelize");
 import { Release } from "../models/Release";
+import fs from 'fs';
 
 export class ReleaseController
 {
@@ -20,20 +21,24 @@ export class ReleaseController
         }
 
         //verifica se chegou alguma imagem
-        let image = ''
-        if(req.file){
-            image = req.file.filename
-        }
+        // let image = ''
+        // if(req.file){
+        //     image = req.file.filename
+        // }
 
+        const file = fs.readFileSync(`${req.file.path}`);
+        const base64image = Buffer.from(file).toString("base64");
+
+        // console.log(base64image)
         //cria o lançamento
         await Release.create({
-            name, image, date, category
+            name, image: base64image, date, category
         })
         .then( response => {
-            res.status(201).json({ message: "Lançamento adicionado com sucesso" });
+            res.status(201).json({ message: "Lançamento adicionado com sucesso"});
         })
         .catch(err => {
-            res.status(422).json({ message: "Erro ao adicionar lançamento" });
+            res.status(422).json({ message: "Erro ao adicionar lançamento", err });
         });
     }
 
