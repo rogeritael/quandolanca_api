@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Notifications } from "../models/Notifications";
+import { UserList } from "../models/UserList";
 
 export class NotificationsController
 {
@@ -35,11 +36,24 @@ export class NotificationsController
             return res.status(422).json({ message: "A notificação para este lançamento já foi criada" });
         }
 
-        await Notifications.create({
-            type, stage, description, releaseName, userId: req.user.id, notificaionReadStatus: false 
+        //precisa verificar se o lançamento está na lista do usuário
+        const userlist = await UserList.findAll({ where: { "userId": req.user.id } });
+        let isOnTheList = false;
+
+        userlist.map((item: any) => {
+            if(item.name === releaseName)
+                isOnTheList = true;
         })
-        .then(response => res.status(201).json({ message: "notificação criada!" }))
-        .catch(err => res.status(422).json({ message: "Erro ao criar notificação" }))
+
+        if(isOnTheList){
+            await Notifications.create({
+                type, stage, description, releaseName, userId: req.user.id, notificaionReadStatus: false 
+            })
+            .then(response => res.status(201).json({ message: "notificação criada!" }))
+            .catch(err => res.status(422).json({ message: "Erro ao criar notificação" }))
+        } else {
+            res.status(422).json({ message: "Este lançamento não está na sua lista" });
+        }
     }
 
     static async setNotificationsAsRead(req: Request, res: Response){
