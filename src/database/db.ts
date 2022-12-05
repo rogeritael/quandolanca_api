@@ -9,4 +9,5 @@ const DB_PORT = process.env.DB_PORT || 3306;
 export const db = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
     host: DB_HOST,
     dialect: 'mysql',
+    port: 6536
 });
