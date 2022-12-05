@@ -8,11 +8,15 @@ import { Release } from './models/Release';
 import { UserList } from './models/UserList';
 
 const app = express();
-const port = process.env.PORT || 5000;
+
 
 //configs
 app.use(cors())
 app.use(express.json());
+
+//variables
+const PORT = process.env.PORT || 5000;
+
 
 //routes
 const UserRoutes = require("./routes/UserRoutes");
@@ -27,5 +31,5 @@ app.use("/usernotifications", NotificationRoutes);
 
 // {force: true}
 db.sync().then(() => {
-    app.listen(port)
+    app.listen(PORT)
 }).catch((error: any) => console.log(error));
