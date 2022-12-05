@@ -15,7 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const User_1 = require("../models/User");
+const UserList_1 = require("../models/UserList");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const Notifications_1 = require("../models/Notifications");
 class UserController {
     static register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -29,13 +31,15 @@ class UserController {
                 return res.status(422).json({ message: "As senhas não coincidem" });
             }
             //o usuário já existe no banco?
-            const userExists = yield User_1.User.findAll({ where: { "email": email } });
+            const userExists = yield User_1.User.findOne({ where: { "email": email } });
             if (userExists) {
                 return res.status(422).json({ message: "Este endereço de e-mail já foi cadastrado" });
             }
             //criptografa a senha
             const salt = yield bcrypt_1.default.genSalt(12);
             const hashedPassword = yield bcrypt_1.default.hash(password, salt);
+            //cria a lista
+            yield UserList_1.UserList.create();
             //cria o usuário
             const user = yield User_1.User.create({
                 name, email, password: hashedPassword
@@ -76,8 +80,8 @@ class UserController {
     }
     static getUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userId = req.user.id;
-            res.status(200).json({ message: "funcionou", userId });
+            const user = yield User_1.User.findOne({ include: [UserList_1.UserList, Notifications_1.Notifications], where: { "id": req.user.id } });
+            res.status(200).json({ user });
         });
     }
 }
